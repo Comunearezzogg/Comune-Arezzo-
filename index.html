@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Registro Segnalazioni</title>
+<meta name="theme-color" content="#1C2126">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js'));}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1C2126;--muted:#5B6470;--paper:#EFF1EC;--card:#FFFFFF;--line:#DDE1D8;--oro:#9A7B2D;--oro-scuro:#7A6122;--rosso:#C0392B;--giallo:#D99A06;--verde:#2E7D46;--r:14px;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.45}
+h1,h2,h3,.display{font-family:'Archivo',system-ui,sans-serif}
+header{background:var(--ink);color:#F5F4EE;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));position:sticky;top:0;z-index:30}
+header .eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--oro);font-weight:600;margin-bottom:2px;font-family:'Archivo'}
+header h1{font-size:19px;font-weight:800;letter-spacing:-.01em}
+header .hrow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.hbtns{display:flex;gap:8px}
+.iconbtn{background:none;border:1.5px solid rgba(245,244,238,.35);color:#F5F4EE;border-radius:10px;padding:8px 11px;font-size:12px;font-weight:600;font-family:'Inter';cursor:pointer;white-space:nowrap}
+.iconbtn:active{background:rgba(255,255,255,.12)}
+main{padding:14px 14px 100px;max-width:680px;margin:0 auto}
+.hidden{display:none!important}
+.filters{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.filters::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:7px 15px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Inter'}
+.chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip.st-rosso.active{background:var(--rosso);border-color:var(--rosso)}
+.chip.st-giallo.active{background:var(--giallo);border-color:var(--giallo)}
+.chip.st-verde.active{background:var(--verde);border-color:var(--verde)}
+.chip.addcat{border-style:dashed;color:var(--oro-scuro);border-color:var(--oro)}
+.searchbox{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;font-size:16px;font-family:'Inter';background:var(--card);margin-bottom:10px;color:var(--ink)}
+.searchbox:focus{outline:2px solid var(--oro);outline-offset:1px}
+.nota{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin-bottom:12px;overflow:hidden;display:flex;cursor:pointer;box-shadow:0 1px 2px rgba(28,33,38,.05)}
+.nota:active{transform:scale(.995)}
+.banda{width:6px;flex:0 0 6px}
+.banda.rosso{background:var(--rosso)}.banda.giallo{background:var(--giallo)}.banda.verde{background:var(--verde)}
+.nota-body{padding:12px 14px;flex:1;min-width:0}
+.nota-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.nota-cat{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--oro-scuro);font-weight:700;font-family:'Archivo'}
+.nota-data{font-size:11px;color:var(--muted);white-space:nowrap}
+.nota-titolo{font-size:16px;font-weight:700;margin:3px 0 4px;font-family:'Archivo';line-height:1.25}
+.nota-sub{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nota-foto-badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--muted);margin-left:8px}
+.fasi{display:flex;align-items:center;gap:6px;margin-top:9px}
+.fase-dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.fase-seg{height:2px;flex:0 0 18px;background:var(--line)}
+.fase-dot.on.f1{background:var(--rosso)}.fase-dot.on.f2{background:var(--giallo)}.fase-dot.on.f3{background:var(--verde)}
+.fase-label{font-size:11px;font-weight:600;color:var(--muted);margin-left:4px}
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty .display{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.fab{position:fixed;right:18px;bottom:calc(22px + env(safe-area-inset-bottom));z-index:25;background:var(--oro);color:#fff;border:none;border-radius:999px;padding:15px 22px;font-size:15px;font-weight:700;font-family:'Archivo';box-shadow:0 4px 14px rgba(122,97,34,.4);cursor:pointer}
+.fab:active{background:var(--oro-scuro)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.panel h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--oro-scuro);margin-bottom:12px;font-weight:700}
+label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:10px 0 4px}
+input[type=text],input[type=email],input[type=tel],textarea,select{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;font-family:'Inter';background:#fff;color:var(--ink)}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--oro);outline-offset:1px}
+textarea{resize:vertical;min-height:70px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:420px){.row2{grid-template-columns:1fr}}
+.btn{display:inline-block;border:none;border-radius:11px;padding:13px 18px;font-size:15px;font-weight:700;font-family:'Archivo';cursor:pointer;text-align:center}
+.btn-primary{background:var(--ink);color:#fff;width:100%}
+.btn-primary:active{background:#000}
+.btn-ghost{background:none;border:1.5px solid var(--line);color:var(--ink);width:100%}
+.btn-oro{background:var(--oro);color:#fff;width:100%}
+.btn-oro:active{background:var(--oro-scuro)}
+.btn-danger{background:none;border:1.5px solid var(--rosso);color:var(--rosso);width:100%}
+.btnrow{display:flex;gap:10px;margin-top:8px}
+.btnrow .btn{flex:1}
+.stato-picker{display:flex;gap:8px;margin-top:6px}
+.stato-btn{flex:1;border:2px solid var(--line);background:#fff;border-radius:11px;padding:11px 4px;font-size:12px;font-weight:700;font-family:'Archivo';cursor:pointer;color:var(--muted);text-align:center}
+.stato-btn small{display:block;font-size:10px;font-weight:600;margin-top:2px;font-family:'Inter';color:var(--muted)}
+.stato-btn.rosso.sel{border-color:var(--rosso);color:var(--rosso);background:#FBEDEB}
+.stato-btn.giallo.sel{border-color:var(--giallo);color:#8a6400;background:#FCF4DE}
+.stato-btn.verde.sel{border-color:var(--verde);color:var(--verde);background:#EAF4ED}
+.ref-card{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+.ref-card:last-child{border-bottom:none}
+.ref-info{min-width:0}
+.ref-role{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.ref-name{font-weight:600;font-size:14px}
+.ref-mail{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ref-actions{display:flex;gap:6px;flex:0 0 auto}
+.mailbtn,.telbtn{background:var(--oro);color:#fff;border:none;border-radius:9px;padding:10px 12px;font-size:13px;font-weight:700;font-family:'Archivo';cursor:pointer;text-decoration:none;display:inline-block}
+.telbtn{background:var(--ink)}
+.mailbtn:disabled{background:var(--line);color:var(--muted)}
+.tl{list-style:none;margin-top:4px}
+.tl li{position:relative;padding:0 0 16px 22px;border-left:2px solid var(--line);margin-left:6px}
+.tl li:last-child{padding-bottom:2px}
+.tl li::before{content:'';position:absolute;left:-6px;top:3px;width:10px;height:10px;border-radius:50%;background:var(--muted);border:2px solid var(--card)}
+.tl li.t-email::before{background:var(--oro)}
+.tl li.t-risposta::before{background:var(--verde)}
+.tl li.t-nota::before{background:var(--ink)}
+.tl .tl-data{font-size:11px;color:var(--muted);font-weight:600}
+.tl .tl-tipo{font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--oro-scuro);margin-left:6px}
+.tl .tl-testo{font-size:14px;margin-top:2px;white-space:pre-wrap;word-break:break-word}
+.foto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin-top:4px}
+.foto-thumb{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#f0f0f0}
+.foto-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.foto-del{position:absolute;top:3px;right:3px;background:rgba(28,33,38,.82);color:#fff;border:none;border-radius:50%;width:24px;height:24px;font-size:14px;line-height:1;cursor:pointer}
+.foto-add{aspect-ratio:1;border:1.5px dashed var(--oro);border-radius:10px;background:#fff;color:var(--oro-scuro);font-size:12px;font-weight:700;font-family:'Archivo';cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.foto-add span{font-size:22px}
+.lightbox{position:fixed;inset:0;background:rgba(10,12,14,.94);z-index:60;display:flex;align-items:center;justify-content:center;padding:16px}
+.lightbox img{max-width:100%;max-height:88%;border-radius:8px}
+.lightbox .lb-close{position:absolute;top:calc(14px + env(safe-area-inset-top));right:16px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:50%;width:42px;height:42px;font-size:22px;cursor:pointer}
+.catlist{list-style:none}
+.catlist li{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.catlist li:last-child{border-bottom:none}
+.del-x{background:none;border:none;color:var(--rosso);font-size:18px;cursor:pointer;padding:4px 10px}
+.back{background:none;border:none;color:var(--oro);font-weight:700;font-size:14px;font-family:'Archivo';cursor:pointer;padding:8px 0;margin-bottom:6px}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:999px;font-size:13px;font-weight:600;z-index:70;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;max-width:90vw}
+.toast.show{opacity:1}
+.loading{text-align:center;padding:60px 20px;color:var(--muted)}
+.hint{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.4}
+.alert-cf{background:#FCF4DE;border:1.5px solid var(--giallo);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:13px;color:#7a5b00}
+.alert-cf b{font-weight:700}
+.alert-cf ul{margin:6px 0 0 0;padding-left:18px}
+.alert-cf a{color:var(--oro-scuro);font-weight:700;cursor:pointer;text-decoration:underline}
+.rubrica-tabs{display:flex;gap:8px;margin-bottom:12px}
+.rubrica-tabs button{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:9px 4px;font-size:12px;font-weight:700;font-family:'Archivo';color:var(--muted);cursor:pointer}
+.rubrica-tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.rub-item{padding:11px 0;border-bottom:1px solid var(--line)}
+.rub-item:last-child{border-bottom:none}
+.rub-item .rn{font-weight:600;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.rub-item .rd{font-size:12px;color:var(--muted);margin-top:2px}
+.lockbadge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--oro);border:1px solid rgba(154,123,45,.5);border-radius:999px;padding:3px 9px;margin-top:6px;font-family:'Archivo'}
+body.ro .fab{display:none!important}
+body.ro #btnModifica,body.ro #btnElimina,body.ro #btnSalva{display:none!important}
+body.ro .foto-add,body.ro .foto-del{display:none!important}
+body.ro .stato-picker{pointer-events:none;opacity:.65}
+body.ro #dRispPanel{display:none!important}
+body.ro .del-x{display:none!important}
+body.ro #catAddBox,body.ro #rubAddBox{display:none!important}
+body.ro #btnImport{display:none!important}
+body.ro .btnEditRub{display:none!important}
+.ro-note{font-size:12px;color:var(--muted);text-align:center;padding:8px;font-style:italic}
+body:not(.ro) .ro-note{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div>
+      <div class="eyebrow">Comune di Arezzo · Segnalazioni</div>
+      <h1>Registro Segnalazioni</h1>
+    </div>
+    <div class="hbtns">
+      <button class="iconbtn" id="btnLock" style="display:none"></button>
+      <button class="iconbtn" id="btnRubrica">👤 Rubrica</button>
+      <button class="iconbtn" id="btnSettings">⚙ Argomenti</button>
+    </div>
+  </div>
+</header>
+<main>
+  <!-- ELENCO -->
+  <section id="vList">
+    <input class="searchbox" id="search" type="text" placeholder="Cerca per titolo, cittadino, CF, referente…">
+    <div class="filters" id="catFilters"></div>
+    <div class="filters" id="stFilters">
+      <button class="chip st-all active" data-st="all">Tutte</button>
+      <button class="chip st-rosso" data-st="rosso">● Rosso</button>
+      <button class="chip st-giallo" data-st="giallo">● Giallo</button>
+      <button class="chip st-verde" data-st="verde">● Verde</button>
+    </div>
+    <div id="listContainer"><div class="loading">Caricamento del registro…</div></div>
+  </section>
+
+  <!-- FORM -->
+  <section id="vForm" class="hidden">
+    <button class="back" id="formBack">← Torna al registro</button>
+    <div class="panel">
+      <h3 id="formTitle">Nuova segnalazione</h3>
+      <label>Titolo *</label>
+      <input type="text" id="fTitolo" placeholder="Es. Buca in via Roma altezza civico 12">
+      <label>Argomento *</label>
+      <select id="fCat"></select>
+      <label>Descrizione</label>
+      <textarea id="fDesc" placeholder="Dettagli della segnalazione…"></textarea>
+    </div>
+    <div class="panel">
+      <h3>Foto</h3>
+      <div class="foto-grid" id="fFotoGrid"></div>
+      <input type="file" id="fFotoInput" accept="image/*" multiple class="hidden">
+      <p class="hint">Le foto restano salvate nell'app e potrai allegarle all'email dei referenti.</p>
+    </div>
+    <div class="panel">
+      <h3>Riferimento tecnico</h3>
+      <div class="row2">
+        <div><label>Nome</label><input type="text" id="fTecNome" list="dlTec" autocomplete="off"></div>
+        <div><label>Email</label><input type="email" id="fTecMail"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Riferimento politico</h3>
+      <div class="row2">
+        <div><label>Nome</label><input type="text" id="fPolNome" list="dlPol" autocomplete="off"></div>
+        <div><label>Email</label><input type="email" id="fPolMail"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Segreteria politica (monitoraggio)</h3>
+      <div class="row2">
+        <div><label>Nome</label><input type="text" id="fSegNome" list="dlSeg" autocomplete="off"></div>
+        <div><label>Email</label><input type="email" id="fSegMail"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Cittadino segnalante</h3>
+      <label>Nome e cognome</label>
+      <input type="text" id="fCitNome">
+      <label>Codice fiscale</label>
+      <input type="text" id="fCitCF" placeholder="RSSMRA80A01H501U" maxlength="16" style="text-transform:uppercase">
+      <div id="fCfAlert"></div>
+      <div class="row2">
+        <div><label>Telefono</label><input type="tel" id="fCitTel"></div>
+        <div><label>Email</label><input type="email" id="fCitMail"></div>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="btnSalva">Salva segnalazione</button>
+    <div class="btnrow"><button class="btn btn-danger hidden" id="btnElimina">Elimina</button></div>
+    <datalist id="dlTec"></datalist>
+    <datalist id="dlPol"></datalist>
+    <datalist id="dlSeg"></datalist>
+  </section>
+
+  <!-- DETTAGLIO -->
+  <section id="vDet" class="hidden">
+    <button class="back" id="detBack">← Torna al registro</button>
+    <div class="panel">
+      <div class="nota-cat" id="dCat"></div>
+      <h2 style="font-size:20px;font-weight:800;margin:4px 0 6px" id="dTitolo"></h2>
+      <div style="font-size:13px;color:var(--muted)" id="dDesc"></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px" id="dMeta"></div>
+      <div id="dCfBox"></div>
+    </div>
+    <div class="panel">
+      <h3>Fase di risoluzione</h3>
+      <div class="stato-picker">
+        <button class="stato-btn rosso" data-fase="1">1 · SEGNALATA<small>rosso</small></button>
+        <button class="stato-btn giallo" data-fase="2">2 · IN LAVORAZIONE<small>giallo</small></button>
+        <button class="stato-btn verde" data-fase="3">3 · RISOLTA<small>verde</small></button>
+      </div>
+    </div>
+    <div class="panel" id="dFotoPanel">
+      <h3>Foto</h3>
+      <div class="foto-grid" id="dFotoGrid"></div>
+      <input type="file" id="dFotoInput" accept="image/*" multiple class="hidden">
+    </div>
+    <div class="panel">
+      <h3>Referenti e contatti</h3>
+      <div id="dRefs"></div>
+      <p class="hint" id="dMailHint"></p>
+    </div>
+    <div class="panel" id="dRispPanel">
+      <h3>Registra una risposta ricevuta</h3>
+      <textarea id="dRisposta" placeholder="Incolla qui la risposta email del tecnico o dell'assessore…"></textarea>
+      <div class="btnrow"><button class="btn btn-ghost" id="btnRisposta">Aggiungi alla cronistoria</button></div>
+      <label style="margin-top:14px">Oppure aggiungi una nota interna</label>
+      <input type="text" id="dNotaInterna" placeholder="Es. sopralluogo effettuato in data odierna">
+      <div class="btnrow"><button class="btn btn-ghost" id="btnNotaInterna">Aggiungi nota</button></div>
+    </div>
+    <div class="panel">
+      <h3>Cronistoria</h3>
+      <ul class="tl" id="dTimeline"></ul>
+    </div>
+    <button class="btn btn-ghost" id="btnModifica" style="width:100%">Modifica segnalazione</button>
+  </section>
+
+  <!-- ARGOMENTI -->
+  <section id="vCat" class="hidden">
+    <button class="back" id="catBack">← Torna al registro</button>
+    <div class="panel">
+      <h3>Argomenti comunali</h3>
+      <p class="hint" style="margin-top:0;margin-bottom:12px">Crea qui gli argomenti che ti servono. Compaiono poi nel menu di ogni segnalazione.</p>
+      <ul class="catlist" id="catList"></ul>
+      <div id="catAddBox">
+      <label>Nuovo argomento</label>
+      <input type="text" id="newCat" placeholder="Es. Verde pubblico">
+      <div class="btnrow"><button class="btn btn-oro" id="btnAddCat">+ Aggiungi argomento</button></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Accesso e sicurezza</h3>
+      <p class="hint" style="margin-top:0;margin-bottom:10px">Con un PIN, l'app si apre in <b>sola consultazione</b>: chiunque può vedere le segnalazioni, ma solo chi conosce il PIN (tecnico, politico, segreteria) può modificarle, cambiare stato o eliminare. È una protezione pratica d'uso, non una sicurezza informatica assoluta.</p>
+      <div id="pinInfo"></div>
+      <div class="btnrow"><button class="btn btn-oro" id="btnSetPin">Imposta / cambia PIN</button></div>
+      <div class="btnrow"><button class="btn btn-ghost" id="btnRemovePin">Rimuovi PIN</button></div>
+    </div>
+    <div class="panel">
+      <h3>Backup dei dati</h3>
+      <p class="hint" style="margin-top:0;margin-bottom:10px">Esporta un backup prima di aggiornare l'app o cambiare telefono. Il backup include foto e rubrica.</p>
+      <div class="btnrow">
+        <button class="btn btn-ghost" id="btnExport">Esporta backup</button>
+        <button class="btn btn-ghost" id="btnImport">Importa backup</button>
+      </div>
+      <input type="file" id="fileImport" accept=".json" class="hidden">
+      <p class="hint" id="verInfo"></p>
+    </div>
+  </section>
+
+  <!-- RUBRICA -->
+  <section id="vRub" class="hidden">
+    <button class="back" id="rubBack">← Torna al registro</button>
+    <div class="panel">
+      <h3>Rubrica referenti</h3>
+      <p class="hint" style="margin-top:0;margin-bottom:12px">Elenco separato per ruolo. Si aggiorna da solo quando usi un nuovo referente in una segnalazione; qui puoi correggere email e telefono.</p>
+      <div class="rubrica-tabs" id="rubTabs">
+        <button data-r="tec" class="on">Tecnici</button>
+        <button data-r="pol">Politici</button>
+        <button data-r="seg">Segreteria</button>
+      </div>
+      <div id="rubList"></div>
+      <div id="rubAddBox">
+      <label style="margin-top:14px">Aggiungi contatto</label>
+      <input type="text" id="rubNome" placeholder="Nome e cognome">
+      <div class="row2">
+        <div><label>Email</label><input type="email" id="rubMail"></div>
+        <div><label>Telefono</label><input type="tel" id="rubTel"></div>
+      </div>
+      <div class="btnrow"><button class="btn btn-oro" id="btnRubAdd">+ Aggiungi in rubrica</button></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<button class="fab" id="fab">+ Nuova nota</button>
+<div class="toast" id="toast"></div>
+<div class="lightbox hidden" id="lightbox"><button class="lb-close" id="lbClose">✕</button><img id="lbImg" src="" alt=""></div>
+
+<script>
+const APP_VERSION='1.3.0';
+const KEY='registro-segnalazioni-v1';
+let DB={categories:[],notes:[],rubrica:{tec:[],pol:[],seg:[]}};
+let filtCat='all',filtSt='all',searchQ='';
+let editingId=null,currentId=null,rubTab='tec';
+let formFotoBuffer=[];
+const FASI={1:{nome:'Segnalata',colore:'rosso'},2:{nome:'In lavorazione',colore:'giallo'},3:{nome:'Risolta',colore:'verde'}};
+const $=id=>document.getElementById(id);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtData=ts=>new Date(ts).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+const fmtDataCorta=ts=>new Date(ts).toLocaleDateString('it-IT',{day:'2-digit',month:'short'});
+const normCF=s=>(s||'').toUpperCase().replace(/\s/g,'').trim();
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+
+/* ---------- PIN / sola consultazione ---------- */
+let unlocked=false;
+function pinHash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))>>>0;return 'h'+h.toString(36);}
+function hasPin(){return !!(DB.pin);}
+function isLocked(){return hasPin()&&!unlocked;}
+function guard(){if(isLocked()){toast('Sola consultazione: sblocca con il PIN per modificare');return true;}return false;}
+function applyRO(){
+  document.body.classList.toggle('ro',isLocked());
+  const b=$('btnLock');
+  if(!hasPin()){b.style.display='none';return;}
+  b.style.display='';
+  b.textContent=unlocked?'🔓 Operatore':'🔒 Consulta';
+}
+$('btnLock')&&($('btnLock').onclick=()=>{
+  if(unlocked){unlocked=false;applyRO();render();toast('Modalità sola consultazione attiva');return;}
+  const p=prompt('Inserisci il PIN operatore per sbloccare le modifiche:');
+  if(p===null)return;
+  if(pinHash(p)===DB.pin){unlocked=true;applyRO();render();toast('Modifiche sbloccate');}
+  else toast('PIN errato');
+});
+
+/* ---------- IndexedDB foto ---------- */
+let idb=null;
+function openIDB(){return new Promise((res,rej)=>{const r=indexedDB.open('rs-foto',1);r.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains('foto'))d.createObjectStore('foto');};r.onsuccess=e=>{idb=e.target.result;res();};r.onerror=e=>rej(e);});}
+function fotoPut(id,d){return new Promise((res,rej)=>{const t=idb.transaction('foto','readwrite');t.objectStore('foto').put(d,id);t.oncomplete=res;t.onerror=rej;});}
+function fotoGet(id){return new Promise((res)=>{const t=idb.transaction('foto','readonly');const rq=t.objectStore('foto').get(id);rq.onsuccess=()=>res(rq.result||null);rq.onerror=()=>res(null);});}
+function fotoDel(id){return new Promise((res)=>{const t=idb.transaction('foto','readwrite');t.objectStore('foto').delete(id);t.oncomplete=res;t.onerror=res;});}
+function comprimi(file){return new Promise((res)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{const max=1024;let w=img.width,h=img.height;if(w>h&&w>max){h=Math.round(h*max/w);w=max;}else if(h>=w&&h>max){w=Math.round(w*max/h);h=max;}const c=document.createElement('canvas');c.width=w;c.height=h;const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',0.6));};img.onerror=()=>{URL.revokeObjectURL(url);res(null);};img.src=url;});}
+function dataURLtoBlob(d){const[a,b]=d.split(',');const mime=a.match(/:(.*?);/)[1];const bin=atob(b);const n=bin.length;const u=new Uint8Array(n);for(let i=0;i<n;i++)u[i]=bin.charCodeAt(i);return new Blob([u],{type:mime});}
+
+/* ---------- Storage ---------- */
+async function load(){
+  try{const raw=localStorage.getItem(KEY);if(raw)DB=JSON.parse(raw);}catch(e){}
+  if(!DB.categories||!DB.categories.length){DB.categories=[{id:uid(),name:'Ambiente'},{id:uid(),name:'Scuola'},{id:uid(),name:'Manutenzione'},{id:uid(),name:'Mobilità'}];}
+  if(!DB.rubrica)DB.rubrica={tec:[],pol:[],seg:[]};
+  ['tec','pol','seg'].forEach(k=>{if(!DB.rubrica[k])DB.rubrica[k]=[];});
+  DB.notes.forEach(n=>{if(!n.foto)n.foto=[];if(n.citCF===undefined)n.citCF='';if(n.segNome===undefined){n.segNome='';n.segMail='';}});
+  await save();render();
+}
+async function save(){try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){toast('Memoria piena: esporta un backup');}}
+
+function show(v){['vList','vForm','vDet','vCat','vRub'].forEach(x=>$(x).classList.add('hidden'));$(v).classList.remove('hidden');$('fab').style.display=v==='vList'?'':'none';window.scrollTo(0,0);}
+
+/* ---------- Rubrica: sync automatico ---------- */
+function rubSync(role,nome,email,tel){
+  nome=(nome||'').trim();if(!nome)return;
+  const list=DB.rubrica[role];
+  const ex=list.find(x=>x.nome.toLowerCase()===nome.toLowerCase());
+  if(ex){if(email&&!ex.email)ex.email=email;if(tel&&!ex.tel)ex.tel=tel;}
+  else list.push({id:uid(),nome,email:email||'',tel:tel||''});
+}
+function rubFind(role,nome){nome=(nome||'').trim().toLowerCase();return DB.rubrica[role].find(x=>x.nome.toLowerCase()===nome);}
+
+/* ---------- Render elenco ---------- */
+function render(){
+  const cf=$('catFilters');
+  cf.innerHTML='<button class="chip'+(filtCat==='all'?' active':'')+'" data-cat="all">Tutti</button>'+
+    DB.categories.map(c=>'<button class="chip'+(filtCat===c.id?' active':'')+'" data-cat="'+c.id+'">'+esc(c.name)+'</button>').join('')+
+    '<button class="chip addcat" data-cat="__add">+ Argomento</button>';
+  cf.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(b.dataset.cat==='__add'){renderCats();show('vCat');return;}filtCat=b.dataset.cat;render();});
+  let notes=[...DB.notes].sort((a,b)=>b.created-a.created);
+  if(filtCat!=='all')notes=notes.filter(n=>n.catId===filtCat);
+  if(filtSt!=='all')notes=notes.filter(n=>FASI[n.fase].colore===filtSt);
+  if(searchQ){const q=searchQ.toLowerCase();notes=notes.filter(n=>[n.titolo,n.desc,n.citNome,n.citCF,n.tecNome,n.polNome,n.segNome].join(' ').toLowerCase().includes(q));}
+  const lc=$('listContainer');
+  if(!notes.length){lc.innerHTML='<div class="empty"><div class="display">Nessuna segnalazione</div>Tocca "+ Nuova nota" per registrare la prima.</div>';return;}
+  lc.innerHTML=notes.map(n=>{
+    const cat=DB.categories.find(c=>c.id===n.catId);const col=FASI[n.fase].colore;const nf=(n.foto||[]).length;
+    return '<div class="nota" data-id="'+n.id+'"><div class="banda '+col+'"></div><div class="nota-body">'+
+      '<div class="nota-top"><span class="nota-cat">'+esc(cat?cat.name:'—')+'</span><span class="nota-data">'+fmtDataCorta(n.created)+'</span></div>'+
+      '<div class="nota-titolo">'+esc(n.titolo)+'</div>'+
+      '<div class="nota-sub">'+esc(n.citNome?('Segnalato da '+n.citNome):(n.desc||''))+(nf?'<span class="nota-foto-badge">📷 '+nf+'</span>':'')+'</div>'+
+      '<div class="fasi"><span class="fase-dot f1'+(n.fase>=1?' on':'')+'"></span><span class="fase-seg"></span>'+
+      '<span class="fase-dot f2'+(n.fase>=2?' on':'')+'"></span><span class="fase-seg"></span>'+
+      '<span class="fase-dot f3'+(n.fase>=3?' on':'')+'"></span><span class="fase-label">'+FASI[n.fase].nome+'</span></div></div></div>';
+  }).join('');
+  lc.querySelectorAll('.nota').forEach(el=>el.onclick=()=>openDet(el.dataset.id));
+}
+
+/* ---------- Datalist rubrica ---------- */
+function fillDatalists(){
+  const b=(role,el)=>{$(el).innerHTML=DB.rubrica[role].map(x=>'<option value="'+esc(x.nome)+'">').join('');};
+  b('tec','dlTec');b('pol','dlPol');b('seg','dlSeg');
+}
+function autofill(role,nomeEl,mailEl){
+  const c=rubFind(role,$(nomeEl).value);
+  if(c){if(c.email)$(mailEl).value=c.email;}
+}
+
+/* ---------- CF alert ---------- */
+function checkCF(){
+  const cf=normCF($('fCitCF').value);
+  const box=$('fCfAlert');
+  if(cf.length<11){box.innerHTML='';return;}
+  const dup=DB.notes.filter(n=>n.id!==editingId&&normCF(n.citCF)===cf);
+  if(!dup.length){box.innerHTML='';return;}
+  box.innerHTML='<div class="alert-cf"><b>⚠ Attenzione:</b> esistono già '+dup.length+' segnalazione/i con questo codice fiscale:<ul>'+
+    dup.map(n=>'<li><a data-id="'+n.id+'">'+esc(n.titolo)+'</a> — '+FASI[n.fase].nome+' ('+fmtDataCorta(n.created)+')</li>').join('')+'</ul></div>';
+  box.querySelectorAll('a[data-id]').forEach(a=>a.onclick=()=>openDet(a.dataset.id));
+}
+
+/* ---------- Form ---------- */
+function openForm(id){
+  editingId=id||null;
+  $('formTitle').textContent=id?'Modifica segnalazione':'Nuova segnalazione';
+  $('btnElimina').classList.toggle('hidden',!id);
+  $('fCat').innerHTML=DB.categories.map(c=>'<option value="'+c.id+'">'+esc(c.name)+'</option>').join('');
+  fillDatalists();
+  const n=id?DB.notes.find(x=>x.id===id):null;
+  $('fTitolo').value=n?n.titolo:'';
+  $('fCat').value=n?n.catId:(DB.categories[0]?DB.categories[0].id:'');
+  $('fDesc').value=n?n.desc:'';
+  $('fTecNome').value=n?n.tecNome:'';$('fTecMail').value=n?n.tecMail:'';
+  $('fPolNome').value=n?n.polNome:'';$('fPolMail').value=n?n.polMail:'';
+  $('fSegNome').value=n?(n.segNome||''):'';$('fSegMail').value=n?(n.segMail||''):'';
+  $('fCitNome').value=n?n.citNome:'';$('fCitCF').value=n?(n.citCF||''):'';
+  $('fCitTel').value=n?n.citTel:'';$('fCitMail').value=n?n.citMail:'';
+  $('fCfAlert').innerHTML='';
+  formFotoBuffer=[];
+  (async()=>{if(n&&n.foto)for(const fid of n.foto){const d=await fotoGet(fid);if(d)formFotoBuffer.push({id:fid,data:d});}renderFormFoto();})();
+  checkCF();
+  show('vForm');
+}
+function renderFormFoto(){
+  const g=$('fFotoGrid');
+  g.innerHTML=formFotoBuffer.map((f,i)=>'<div class="foto-thumb"><img src="'+f.data+'" class="fzoom"><button class="foto-del" data-i="'+i+'">✕</button></div>').join('')+
+    '<button class="foto-add" id="fFotoAddBtn"><span>＋</span>Aggiungi</button>';
+  g.querySelectorAll('.foto-del').forEach(b=>b.onclick=e=>{e.stopPropagation();formFotoBuffer.splice(+b.dataset.i,1);renderFormFoto();});
+  g.querySelectorAll('.fzoom').forEach(im=>im.onclick=()=>openLightbox(im.src));
+  $('fFotoAddBtn').onclick=()=>$('fFotoInput').click();
+}
+$('fFotoInput').onchange=async e=>{const files=[...e.target.files];e.target.value='';if(!files.length)return;toast('Elaboro le foto…');for(const f of files){const d=await comprimi(f);if(d)formFotoBuffer.push({id:uid(),data:d});}renderFormFoto();};
+$('fCitCF').oninput=checkCF;
+$('fTecNome').onchange=()=>autofill('tec','fTecNome','fTecMail');
+$('fPolNome').onchange=()=>autofill('pol','fPolNome','fPolMail');
+$('fSegNome').onchange=()=>autofill('seg','fSegNome','fSegMail');
+
+async function salvaNota(){
+  if(guard())return;
+  const titolo=$('fTitolo').value.trim();
+  if(!titolo){toast('Inserisci un titolo');return;}
+  const fotoIds=[];
+  for(const f of formFotoBuffer){await fotoPut(f.id,f.data);fotoIds.push(f.id);}
+  const vals={titolo,catId:$('fCat').value,desc:$('fDesc').value.trim(),
+    tecNome:$('fTecNome').value.trim(),tecMail:$('fTecMail').value.trim(),
+    polNome:$('fPolNome').value.trim(),polMail:$('fPolMail').value.trim(),
+    segNome:$('fSegNome').value.trim(),segMail:$('fSegMail').value.trim(),
+    citNome:$('fCitNome').value.trim(),citCF:normCF($('fCitCF').value),citTel:$('fCitTel').value.trim(),citMail:$('fCitMail').value.trim()};
+  // aggiorna rubrica
+  rubSync('tec',vals.tecNome,vals.tecMail,'');
+  rubSync('pol',vals.polNome,vals.polMail,'');
+  rubSync('seg',vals.segNome,vals.segMail,'');
+  if(editingId){
+    const n=DB.notes.find(x=>x.id===editingId);
+    for(const oldId of (n.foto||[]))if(!fotoIds.includes(oldId))await fotoDel(oldId);
+    Object.assign(n,vals,{foto:fotoIds});
+    n.timeline.push({ts:Date.now(),tipo:'sistema',testo:'Dati della segnalazione aggiornati'});
+    await save();toast('Modifiche salvate');openDet(editingId);
+  }else{
+    const n=Object.assign({id:uid(),created:Date.now(),fase:1,foto:fotoIds,timeline:[{ts:Date.now(),tipo:'sistema',testo:'Segnalazione registrata (fase 1 · Segnalata)'}]},vals);
+    DB.notes.push(n);await save();toast('Segnalazione registrata');openDet(n.id);
+  }
+}
+
+/* ---------- Dettaglio ---------- */
+async function openDet(id){
+  currentId=id;
+  const n=DB.notes.find(x=>x.id===id);
+  if(!n){show('vList');return;}
+  const cat=DB.categories.find(c=>c.id===n.catId);
+  $('dCat').textContent=cat?cat.name:'—';
+  $('dTitolo').textContent=n.titolo;
+  $('dDesc').textContent=n.desc||'';
+  $('dMeta').textContent='Registrata il '+fmtData(n.created)+' · Prot. interno '+n.id.toUpperCase();
+  // box CF con eventuali collegate
+  const cfBox=$('dCfBox');
+  if(n.citCF){
+    const dup=DB.notes.filter(x=>x.id!==n.id&&normCF(x.citCF)===normCF(n.citCF));
+    let h='<div style="font-size:12px;color:var(--muted);margin-top:6px">CF cittadino: <b>'+esc(n.citCF)+'</b></div>';
+    if(dup.length)h+='<div class="alert-cf" style="margin-top:6px"><b>⚠ Stesso CF</b> in altre '+dup.length+' segnalazione/i:<ul>'+dup.map(x=>'<li><a data-id="'+x.id+'">'+esc(x.titolo)+'</a> — '+FASI[x.fase].nome+'</li>').join('')+'</ul></div>';
+    cfBox.innerHTML=h;
+    cfBox.querySelectorAll('a[data-id]').forEach(a=>a.onclick=()=>openDet(a.dataset.id));
+  }else cfBox.innerHTML='';
+  document.querySelectorAll('.stato-btn').forEach(b=>{
+    b.classList.toggle('sel',Number(b.dataset.fase)===n.fase);
+    b.onclick=async()=>{if(guard())return;const f=Number(b.dataset.fase);if(f===n.fase)return;n.fase=f;n.timeline.push({ts:Date.now(),tipo:'sistema',testo:'Fase aggiornata: '+f+' · '+FASI[f].nome+' ('+FASI[f].colore+')'});await save();openDet(id);toast('Fase aggiornata: '+FASI[f].nome);};
+  });
+  await renderDetFoto(n);
+  // referenti (con telefono da rubrica)
+  const tRub=rubFind('tec',n.tecNome),pRub=rubFind('pol',n.polNome),sRub=rubFind('seg',n.segNome),cTel=n.citTel;
+  const refs=[
+    refCard('Riferimento tecnico',n.tecNome,n.tecMail,tRub&&tRub.tel,'tec'),
+    refCard('Riferimento politico',n.polNome,n.polMail,pRub&&pRub.tel,'pol'),
+    refCard('Segreteria politica',n.segNome,n.segMail,sRub&&sRub.tel,'seg'),
+    refCard('Cittadino segnalante',n.citNome,n.citMail,cTel,'cit')
+  ];
+  $('dRefs').innerHTML=refs.join('');
+  $('dRefs').querySelectorAll('.mailbtn').forEach(b=>b.onclick=()=>inviaMail(n,b.dataset.who));
+  const nf=(n.foto||[]).length;
+  $('dMailHint').textContent=nf?('Il pulsante ✉ propone di allegare le '+nf+' foto e apre la tua app di posta.'):'Il pulsante ✉ apre la tua app di posta con oggetto e testo già pronti.';
+  renderTimeline(n);
+  $('dRisposta').value='';$('dNotaInterna').value='';
+  show('vDet');
+}
+async function renderDetFoto(n){
+  const g=$('dFotoGrid');g.innerHTML='';const cache=[];
+  for(const fid of (n.foto||[])){const d=await fotoGet(fid);if(d)cache.push({id:fid,data:d});}
+  g._cache=cache;
+  g.innerHTML=cache.map(f=>'<div class="foto-thumb"><img src="'+f.data+'" class="dzoom"><button class="foto-del" data-id="'+f.id+'">✕</button></div>').join('')+
+    '<button class="foto-add" id="dFotoAddBtn"><span>＋</span>Aggiungi</button>';
+  g.querySelectorAll('.dzoom').forEach(im=>im.onclick=()=>openLightbox(im.src));
+  g.querySelectorAll('.foto-del').forEach(b=>b.onclick=async e=>{e.stopPropagation();if(!confirm('Eliminare questa foto?'))return;const fid=b.dataset.id;await fotoDel(fid);n.foto=n.foto.filter(x=>x!==fid);await save();renderDetFoto(n);toast('Foto eliminata');});
+  $('dFotoAddBtn').onclick=()=>$('dFotoInput').click();
+}
+$('dFotoInput').onchange=async e=>{if(guard()){e.target.value='';return;}const files=[...e.target.files];e.target.value='';if(!files.length)return;const n=DB.notes.find(x=>x.id===currentId);toast('Elaboro le foto…');for(const f of files){const d=await comprimi(f);if(d){const fid=uid();await fotoPut(fid,d);n.foto.push(fid);}}await save();renderDetFoto(n);toast('Foto aggiunte');};
+
+function refCard(role,nome,email,tel,who){
+  const acts=[];
+  acts.push('<button class="mailbtn" data-who="'+who+'" '+(email?'':'disabled')+'>✉</button>');
+  if(tel)acts.push('<a class="telbtn" href="tel:'+encodeURIComponent(tel)+'">☎</a>');
+  return '<div class="ref-card"><div class="ref-info"><div class="ref-role">'+role+'</div>'+
+    '<div class="ref-name">'+esc(nome||'Non assegnato')+'</div>'+
+    '<div class="ref-mail">'+esc(email||'')+(tel?(' · '+esc(tel)):'')+'</div></div>'+
+    '<div class="ref-actions">'+acts.join('')+'</div></div>';
+}
+function renderTimeline(n){
+  const tl=[...n.timeline].sort((a,b)=>b.ts-a.ts);
+  const nomi={sistema:'Sistema',email:'Email inviata',risposta:'Risposta ricevuta',nota:'Nota interna'};
+  $('dTimeline').innerHTML=tl.map(e=>'<li class="t-'+e.tipo+'"><span class="tl-data">'+fmtData(e.ts)+'</span><span class="tl-tipo">'+nomi[e.tipo]+'</span><div class="tl-testo">'+esc(e.testo)+'</div></li>').join('');
+}
+
+/* ---------- Email ---------- */
+async function inviaMail(n,who){
+  const map={tec:[n.tecMail,n.tecNome],pol:[n.polMail,n.polNome],seg:[n.segMail,n.segNome],cit:[n.citMail,n.citNome]};
+  const[dest,nome]=map[who];
+  if(!dest){toast('Nessuna email per questo referente');return;}
+  const cat=DB.categories.find(c=>c.id===n.catId);
+  const subject='[Segnalazione '+(cat?cat.name:'')+'] '+n.titolo+' — Prot. '+n.id.toUpperCase();
+  let body='Gentile '+(nome||'')+',\n\nin riferimento alla segnalazione in oggetto, si trasmettono i dettagli:\n\n'+
+    'Argomento: '+(cat?cat.name:'—')+'\nTitolo: '+n.titolo+'\n'+(n.desc?('Descrizione: '+n.desc+'\n'):'')+
+    'Fase attuale: '+n.fase+' · '+FASI[n.fase].nome+'\nData registrazione: '+fmtData(n.created)+'\n';
+  if(who!=='cit'&&n.citNome)body+='\nSegnalante: '+n.citNome+(n.citTel?(' · Tel. '+n.citTel):'')+(n.citMail?(' · '+n.citMail):'')+'\n';
+  body+='\nSi chiede cortese riscontro con indicazione dei tempi di intervento previsti.\n\nCordiali saluti';
+  const nfoto=(n.foto||[]).length;
+  if(nfoto&&navigator.canShare){
+    let src=[];const g=$('dFotoGrid');if(g&&g._cache&&g._cache.length)src=g._cache;
+    if(!src.length){for(const fid of n.foto){const d=await fotoGet(fid);if(d)src.push({id:fid,data:d});}}
+    let files=[];src.forEach((f,i)=>{try{files.push(new File([dataURLtoBlob(f.data)],'foto-'+(i+1)+'.jpg',{type:'image/jpeg'}));}catch(e){}});
+    if(files.length&&navigator.canShare({files})){
+      try{await navigator.share({title:subject,text:'A: '+dest+'\n\n'+body,files});
+        n.timeline.push({ts:Date.now(),tipo:'email',testo:'Condivisa con '+(nome||dest)+' ('+dest+') e '+files.length+' foto — oggetto: '+subject});
+        await save();renderTimeline(n);return;
+      }catch(e){}
+    }
+  }
+  const url='mailto:'+encodeURIComponent(dest)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  n.timeline.push({ts:Date.now(),tipo:'email',testo:'Email predisposta per '+(nome||dest)+' ('+dest+')'+(nfoto?(' — le '+nfoto+' foto vanno allegate a mano'):'')+' — oggetto: '+subject});
+  await save();renderTimeline(n);window.location.href=url;
+}
+
+/* ---------- Lightbox ---------- */
+function openLightbox(src){$('lbImg').src=src;$('lightbox').classList.remove('hidden');}
+$('lbClose').onclick=()=>$('lightbox').classList.add('hidden');
+$('lightbox').onclick=e=>{if(e.target.id==='lightbox')$('lightbox').classList.add('hidden');};
+
+/* ---------- Rubrica UI ---------- */
+function renderRub(){
+  $('rubTabs').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.r===rubTab));
+  const list=DB.rubrica[rubTab];
+  $('rubList').innerHTML=list.length?list.map(c=>
+    '<div class="rub-item"><div class="rn"><span>'+esc(c.nome)+'</span><button class="del-x" data-id="'+c.id+'">✕</button></div>'+
+    '<div class="rd">'+(c.email?('✉ '+esc(c.email)):'—')+(c.tel?('　☎ '+esc(c.tel)):'')+'</div>'+
+    '<div class="btnrow"><button class="btn btn-ghost btnEditRub" data-id="'+c.id+'" style="padding:8px">Modifica email/telefono</button></div></div>'
+  ).join(''):'<p class="hint">Nessun contatto in questa lista. Si popolerà da sola usando i referenti nelle segnalazioni, oppure aggiungine uno qui sotto.</p>';
+  $('rubList').querySelectorAll('.del-x').forEach(b=>b.onclick=async()=>{DB.rubrica[rubTab]=DB.rubrica[rubTab].filter(c=>c.id!==b.dataset.id);await save();renderRub();});
+  $('rubList').querySelectorAll('.btnEditRub').forEach(b=>b.onclick=async()=>{
+    const c=DB.rubrica[rubTab].find(x=>x.id===b.dataset.id);
+    const em=prompt('Email di '+c.nome+':',c.email||'');if(em!==null)c.email=em.trim();
+    const tl=prompt('Telefono di '+c.nome+':',c.tel||'');if(tl!==null)c.tel=tl.trim();
+    await save();renderRub();toast('Contatto aggiornato');
+  });
+}
+$('rubTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{rubTab=b.dataset.r;renderRub();});
+$('btnRubAdd').onclick=async()=>{if(guard())return;
+  const nome=$('rubNome').value.trim();if(!nome){toast('Scrivi il nome');return;}
+  DB.rubrica[rubTab].push({id:uid(),nome,email:$('rubMail').value.trim(),tel:$('rubTel').value.trim()});
+  await save();$('rubNome').value='';$('rubMail').value='';$('rubTel').value='';renderRub();toast('Contatto aggiunto');
+};
+
+/* ---------- Eventi ---------- */
+$('fab').onclick=()=>{if(guard())return;openForm(null);};
+$('formBack').onclick=()=>{editingId?openDet(editingId):show('vList');render();};
+$('detBack').onclick=()=>{show('vList');render();};
+$('catBack').onclick=()=>{show('vList');render();};
+$('rubBack').onclick=()=>{show('vList');render();};
+$('btnSettings').onclick=()=>{renderCats();renderPin();show('vCat');};
+$('btnRubrica').onclick=()=>{renderRub();show('vRub');};
+$('btnSalva').onclick=salvaNota;
+$('btnModifica').onclick=()=>{if(guard())return;openForm(currentId);};
+$('btnElimina').onclick=async()=>{if(guard())return;if(!editingId)return;if(!confirm('Eliminare definitivamente questa segnalazione?'))return;const n=DB.notes.find(x=>x.id===editingId);if(n&&n.foto)for(const fid of n.foto)await fotoDel(fid);DB.notes=DB.notes.filter(x=>x.id!==editingId);await save();editingId=null;show('vList');render();toast('Segnalazione eliminata');};
+$('btnRisposta').onclick=async()=>{if(guard())return;const t=$('dRisposta').value.trim();if(!t){toast('Incolla prima il testo della risposta');return;}const n=DB.notes.find(x=>x.id===currentId);n.timeline.push({ts:Date.now(),tipo:'risposta',testo:t});await save();$('dRisposta').value='';renderTimeline(n);toast('Risposta registrata');};
+$('btnNotaInterna').onclick=async()=>{if(guard())return;const t=$('dNotaInterna').value.trim();if(!t){toast('Scrivi prima il testo della nota');return;}const n=DB.notes.find(x=>x.id===currentId);n.timeline.push({ts:Date.now(),tipo:'nota',testo:t});await save();$('dNotaInterna').value='';renderTimeline(n);toast('Nota aggiunta');};
+$('search').oninput=e=>{searchQ=e.target.value;render();};
+document.querySelectorAll('#stFilters .chip').forEach(b=>b.onclick=()=>{filtSt=b.dataset.st;document.querySelectorAll('#stFilters .chip').forEach(x=>x.classList.toggle('active',x===b));render();});
+
+/* ---------- Argomenti ---------- */
+function renderCats(){
+  $('catList').innerHTML=DB.categories.map(c=>{const inUse=DB.notes.some(n=>n.catId===c.id);return '<li><span>'+esc(c.name)+(inUse?' <small style="color:var(--muted)">(in uso)</small>':'')+'</span>'+(inUse?'':'<button class="del-x" data-id="'+c.id+'">✕</button>')+'</li>';}).join('');
+  $('catList').querySelectorAll('.del-x').forEach(b=>b.onclick=async()=>{DB.categories=DB.categories.filter(c=>c.id!==b.dataset.id);await save();renderCats();render();});
+}
+$('btnAddCat').onclick=async()=>{if(guard())return;const name=$('newCat').value.trim();if(!name){toast('Scrivi il nome dell\'argomento');return;}if(DB.categories.some(c=>c.name.toLowerCase()===name.toLowerCase())){toast('Argomento già esistente');return;}DB.categories.push({id:uid(),name});await save();$('newCat').value='';renderCats();render();toast('Argomento aggiunto');};
+
+/* ---------- PIN management ---------- */
+function renderPin(){
+  const info=$('pinInfo');
+  if(hasPin())info.innerHTML='<div class="lockbadge">🔒 PIN attivo — l\'app si apre in sola consultazione</div>';
+  else info.innerHTML='<p class="hint" style="margin-top:0">Nessun PIN impostato: l\'app è completamente modificabile.</p>';
+  $('btnRemovePin').style.display=hasPin()?'':'none';
+}
+$('btnSetPin').onclick=async()=>{
+  if(hasPin()&&isLocked()){toast('Sblocca prima con il PIN attuale');return;}
+  const p=prompt('Nuovo PIN (min. 4 cifre/caratteri). Annotalo: chi non lo conosce potrà solo consultare.');
+  if(p===null)return;
+  if(p.trim().length<4){toast('PIN troppo corto (minimo 4)');return;}
+  const p2=prompt('Conferma il PIN:');
+  if(p2===null)return;
+  if(p.trim()!==p2.trim()){toast('I due PIN non coincidono');return;}
+  DB.pin=pinHash(p.trim());unlocked=true;await save();renderPin();applyRO();toast('PIN impostato. Sei in modalità operatore.');
+};
+$('btnRemovePin').onclick=async()=>{
+  if(isLocked()){toast('Sblocca prima con il PIN');return;}
+  if(!confirm('Rimuovere il PIN? L\'app tornerà completamente modificabile da chiunque la apra.'))return;
+  delete DB.pin;unlocked=false;await save();renderPin();applyRO();toast('PIN rimosso');
+};
+
+/* ---------- Backup ---------- */
+$('verInfo').textContent='Registro Segnalazioni · versione '+APP_VERSION;
+$('btnExport').onclick=async()=>{
+  toast('Preparo il backup…');const fotoMap={};
+  for(const n of DB.notes)for(const fid of (n.foto||[])){const d=await fotoGet(fid);if(d)fotoMap[fid]=d;}
+  const pack={_app:'registro-segnalazioni',_ver:APP_VERSION,categories:DB.categories,notes:DB.notes,rubrica:DB.rubrica,foto:fotoMap};
+  const blob=new Blob([JSON.stringify(pack)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='registro-segnalazioni-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);toast('Backup esportato');
+};
+$('btnImport').onclick=()=>$('fileImport').click();
+$('fileImport').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{const d=JSON.parse(r.result);if(!d.categories||!d.notes)throw 0;if(!confirm('Importare il backup? I dati attuali ('+DB.notes.length+' note) verranno sostituiti da quelli del file ('+d.notes.length+' note).'))return;if(d.foto)for(const fid in d.foto)await fotoPut(fid,d.foto[fid]);DB={categories:d.categories,notes:d.notes,rubrica:d.rubrica||{tec:[],pol:[],seg:[]}};DB.notes.forEach(n=>{if(!n.foto)n.foto=[];if(n.citCF===undefined)n.citCF='';if(n.segNome===undefined){n.segNome='';n.segMail='';}});['tec','pol','seg'].forEach(k=>{if(!DB.rubrica[k])DB.rubrica[k]=[];});await save();renderCats();render();toast('Backup importato');}catch(err){toast('File di backup non valido');}};r.readAsText(f);e.target.value='';};
+
+/* ---------- Avvio ---------- */
+(async()=>{try{await openIDB();}catch(e){}await load();applyRO();})();
+</script>
+</body>
+</html>
